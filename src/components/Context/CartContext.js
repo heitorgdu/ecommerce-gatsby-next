@@ -1,10 +1,5 @@
 import React from 'react'
 
-const CartContext = React.createContext({
-  cartId: null,
-  cartCount: 0,
-  addToCart: () => {},
-  updateCartCount: () => {},
-})
+const CartContext = React.createContext(null)
 
 export default CartContext

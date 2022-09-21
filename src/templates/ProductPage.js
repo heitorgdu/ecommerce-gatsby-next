@@ -1,22 +1,20 @@
 /* eslint-disable */
 import React from 'react'
-import {graphql} from 'gatsby'
-import SEO from '../components/SEO'
+import Helmet from 'react-helmet'
 import get from 'lodash/get'
 import ProductSummary from '../components/ProductSummary'
 import ProductAttributes from '../components/ProductAttributes'
-import Layout from '../components/Layout'
 
 class ProductPageTemplate extends React.PureComponent {
   render() {
     const productInfo = get(this, 'props.data.allMoltinProduct')
     const data = productInfo.edges[0].node
     const slug = data.slug
-    const image = get(data, 'mainImageHref')
+    const image = get(data, 'includedData.main_image.link.href')
     const sizes = get(data, 'mainImage.childImageSharp.sizes')
     const product = {
       ...data,
-      id: data.id,
+      id: data.originalId,
       image,
       mainImage: data.mainImage,
       header: data.name,
@@ -24,14 +22,14 @@ class ProductPageTemplate extends React.PureComponent {
       sku: data.sku,
     }
 
-    if (!sizes) return null
+    if(!sizes) return null
 
     return (
-      <Layout location={this.props.location}>
-        <SEO title={slug} />
+      <div>
+        <Helmet title={slug} />
         <ProductSummary {...product} />
         <ProductAttributes {...product} />
-      </Layout>
+      </div>
     )
   }
 }
@@ -39,11 +37,11 @@ class ProductPageTemplate extends React.PureComponent {
 export default ProductPageTemplate
 
 export const pageQuery = graphql`
-  query ProductsQuery($id: String!) {
-    allMoltinProduct(filter: {id: {eq: $id}}) {
+  query ProductsQuery($originalId: String!) {
+    allMoltinProduct(filter: { originalId: { eq: $originalId } }) {
       edges {
         node {
-          id
+          originalId
           name
           description
           meta {
@@ -55,7 +53,13 @@ export const pageQuery = graphql`
               }
             }
           }
-          mainImageHref
+          includedData {
+            main_image {
+              link {
+                href
+              }
+            }
+          }
           mainImage {
             childImageSharp {
               sizes(maxWidth: 400) {
@@ -68,6 +72,7 @@ export const pageQuery = graphql`
           max_watt
           bulb_qty
           bulb
+          new
           sku
           finish
         }

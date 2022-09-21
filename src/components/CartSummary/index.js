@@ -1,20 +1,17 @@
 import React from 'react'
 import StripeCheckout from 'react-stripe-checkout'
-import {Button, Segment, Divider} from 'semantic-ui-react'
+import { Button, Segment, Divider } from 'semantic-ui-react'
 
 export default ({
   handleCheckout,
   display_price: {
-    with_tax: {amount, currency, formatted},
+    with_tax: { amount, currency, formatted },
   },
 }) => (
   <div>
     <Divider />
     <Segment clearing size="large">
-      <span>
-        <strong>Sub total:</strong>
-        {` ${formatted}`}
-      </span>
+      <strong>Sub total:</strong> {formatted}
       <StripeCheckout
         name="Gatsby Store"
         amount={amount}

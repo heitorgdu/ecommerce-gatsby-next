@@ -1,10 +1,9 @@
 import React from 'react'
-import SEO from '../components/SEO'
-import Layout from '../components/Layout'
+import Helmet from 'react-helmet'
 
-const Privacy = ({location}) => (
-  <Layout location={location}>
-    <SEO title="Privacy" />
+const Privacy = () => (
+  <div>
+    <Helmet title="Privacy" />
     <h1>Privacy</h1>
     <p>
       Lorem ipsizzle dolizzle sit amizzle, fo shizzle my nizzle adipiscing
@@ -18,7 +17,7 @@ const Privacy = ({location}) => (
       gangsta ac, eleifend vitae, shizzlin dizzle. Mammasay mammasa mamma oo sa
       suscipizzle. Shizzle my nizzle crocodizzle semper velit sed purizzle.
     </p>
-  </Layout>
+  </div>
 )
 
 export default Privacy

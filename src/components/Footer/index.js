@@ -1,22 +1,6 @@
 import React from 'react'
-import {Link} from 'gatsby'
-import {Segment, Container, Grid, List, Header} from 'semantic-ui-react'
-
-const twitterLink = (
-  <a href="https://twitter.com/parmsang" alt="twitter link">
-    Twitter
-  </a>
-)
-const facebookLink = (
-  <a href="https://facebook.com/" alt="facebook link">
-    Facebook
-  </a>
-)
-const emailLink = (
-  <a href="mailto:john@doe.com" alt="email link">
-    Email
-  </a>
-)
+import Link from 'gatsby-link'
+import { Segment, Container, Grid, List, Header } from 'semantic-ui-react'
 
 const Footer = () => (
   <Segment
@@ -47,6 +31,9 @@ const Footer = () => (
               <List.Item as={Link} to="/">
                 Our Products
               </List.Item>
+              <List.Item as={Link} to="/gatsbyimage/">
+                Gatsby Image Example
+              </List.Item>
             </List>
           </Grid.Column>
           <Grid.Column width={7}>
@@ -55,21 +42,30 @@ const Footer = () => (
               Extra space for a call to action inside the footer that could help
               re-engage users.
             </p>
-            <List horizontal style={{display: 'flex'}}>
+            <List horizontal>
               <List.Item
                 icon="twitter"
-                style={{display: 'flex'}}
-                content={twitterLink}
+                content={
+                  <a href="https://twitter.com/parmsang" alt="twitter link">
+                    Twitter
+                  </a>
+                }
               />
               <List.Item
                 icon="facebook"
-                style={{display: 'flex'}}
-                content={facebookLink}
+                content={
+                  <a href="https://facebook.com/" alt="facebook link">
+                    Facebook
+                  </a>
+                }
               />
               <List.Item
                 icon="mail"
-                style={{display: 'flex'}}
-                content={emailLink}
+                content={
+                  <a href="#" alt="email link">
+                    Email
+                  </a>
+                }
               />
             </List>
           </Grid.Column>

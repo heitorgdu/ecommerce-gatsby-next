@@ -1,40 +1,55 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable no-use-before-define */
-
-import React, {useState, useContext} from 'react'
-import {navigate} from 'gatsby'
-import {Header, Form, Input, Button, Segment, Message} from 'semantic-ui-react'
-import SEO from '../components/SEO'
-import {login} from '../../lib/moltin'
+import React from 'react'
+import { navigateTo } from 'gatsby-link'
+import {
+  Header,
+  Form,
+  Input,
+  Button,
+  Segment,
+  Message,
+} from 'semantic-ui-react'
+import Helmet from 'react-helmet'
+import { login } from '../../lib/moltin'
 import AuthContext from '../components/Context/AuthContext'
-import Layout from '../components/Layout'
-import useForm from '../components/Hooks/useForm'
 
-const LoginPage = ({location}) => {
-  const [loading, setLoading] = useState(false)
-  const [apiError, setApiError] = useState([])
-  const {updateToken} = useContext(AuthContext)
+export default class Login extends React.Component {
+  state = {
+    email: '',
+    password: '',
+    loading: false,
+    errors: null,
+  }
 
-  const formLogin = () => {
-    setLoading(true)
-    login({email: values.email, password: values.password})
-      .then(({id, token}) => {
+  _handleSubmit = (e, context) => {
+    e.preventDefault()
+
+    const { email, password } = this.state
+
+    this.setState({
+      loading: true,
+      errors: null,
+    })
+
+    login({ email, password })
+      .then(({ id, token }) => {
         localStorage.setItem('customerToken', token)
         localStorage.setItem('mcustomer', id)
-        updateToken()
-        navigate('/myaccount/')
+        context.updateToken()
+        navigateTo('/myaccount/')
       })
       .catch(e => {
-        setLoading(false)
-        setApiError(e.errors || e)
+        console.log(e.message)
+        this.setState({
+          loading: false,
+          errors: e.errors || e,
+        })
       })
   }
-  const {values, handleChange, handleSubmit, errors} = useForm(
-    formLogin,
-    validate,
-  )
 
-  const handleErrors = errors => {
+  _handleChange = ({ target: { name, value } }) =>
+    this.setState({ [name]: value })
+
+  handleErrors = errors => {
     if (!Array.isArray(errors) && !errors.length > 0) {
       return (
         <Message
@@ -44,70 +59,61 @@ const LoginPage = ({location}) => {
         />
       )
     }
-    return errors.map(e => (
-      <Message error header={e.title} content={e.detail} key={e.status} />
+    return errors.map((error, i) => (
+      <Message error header={error.title} content={error.detail} key={i} />
     ))
   }
-  return (
-    <Layout location={location}>
-      <SEO title="Login" />
-      <Header as="h1">Log in to your account</Header>
-      <Form
-        onSubmit={handleSubmit}
-        loading={loading}
-        error={apiError.length !== 0 || Object.entries(errors).length !== 0}
-      >
-        {apiError.length !== 0 ? handleErrors(errors) : null}
-        <Segment>
-          <Form.Field>
-            <label htmlFor="email">Email</label>
-            <Input
-              id="email"
-              fluid
-              name="email"
-              type="email"
-              autoFocus
-              onChange={handleChange}
-              value={values.email || ''}
-            />
-          </Form.Field>
-          {errors.email && (
-            <p data-testid="error" style={{color: 'red'}}>
-              {errors.email}
-            </p>
-          )}
-          <Form.Field>
-            <label htmlFor="password">Password</label>
-            <Input
-              id="password"
-              fluid
-              name="password"
-              type="password"
-              value={values.password || ''}
-              onChange={handleChange}
-            />
-          </Form.Field>
-          {errors.password && <p style={{color: 'red'}}>{errors.password}</p>}
-          <Button type="submit" color="orange">
-            Login
-          </Button>
-        </Segment>
-      </Form>
-    </Layout>
-  )
-}
 
-export default LoginPage
+  render() {
+    const { loading, errors } = this.state
 
-const validate = values => {
-  const errors = {}
-  if (!values.email) {
-    errors.email = 'Email address is required'
-  } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = 'Email address is invalid'
+    return (
+      <AuthContext.Consumer>
+        {context => (
+          <React.Fragment>
+            <Helmet title="Login" />
+            <Header as="h1">Log in to your account</Header>
+
+            <Form
+              onSubmit={e => this._handleSubmit(e, context)}
+              loading={loading}
+              error={!!errors}
+            >
+              {errors ? this.handleErrors(errors) : null}
+              <Segment>
+                <Form.Field>
+                  <label htmlFor="email">Email</label>
+                  <Input
+                    id="email"
+                    fluid
+                    name="email"
+                    type="email"
+                    autoFocus
+                    onChange={e => this._handleChange(e)}
+                    required
+                  />
+                </Form.Field>
+
+                <Form.Field>
+                  <label htmlFor="password">Password</label>
+                  <Input
+                    id="password"
+                    fluid
+                    name="password"
+                    type="password"
+                    required
+                    onChange={e => this._handleChange(e)}
+                  />
+                </Form.Field>
+
+                <Button type="submit" color="orange">
+                  Login
+                </Button>
+              </Segment>
+            </Form>
+          </React.Fragment>
+        )}
+      </AuthContext.Consumer>
+    )
   }
-  if (!values.password) {
-    errors.password = 'Password is required'
-  }
-  return errors
 }

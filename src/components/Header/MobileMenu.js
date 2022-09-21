@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react'
-import {Link, withPrefix} from 'gatsby'
+import React, { Component } from 'react'
+import Link, { withPrefix } from 'gatsby-link'
 import {
   Menu,
   Container,
@@ -30,7 +30,7 @@ const BurgerButton = styled(Button)`
       0 0 0 0 rgba(34, 36, 38, 0.15) inset;
   }
 `
-const CloseButton = styled(BurgerButton)`
+const CloseButton = BurgerButton.extend`
   &&& {
     position: absolute;
     top: -4em;
@@ -45,7 +45,7 @@ const CloseButton = styled(BurgerButton)`
 const StyledSegment = styled(Segment)`
   &&& {
     position: fixed;
-    top: -1em;
+    top: 0%;
     left: 0vw;
     z-index: 1000;
     width: 100vw;
@@ -67,94 +67,108 @@ const StyledDivider = styled(Divider)`
   }
 `
 
-const MobileMenu = ({location: {pathname}, token, cartCount, signout}) => {
-  const [activeItem, setActiveItem] = useState(pathname)
-  const [open, setOpen] = useState(false)
+class MobileMenu extends Component {
+  state = {
+    open: false,
+    activeItem: this.props.location.pathname,
+  }
 
-  useEffect(() => {
-    setActiveItem(pathname)
-  }, [pathname])
+  componentWillReceiveProps(nextProps) {
+    const nextPathname = nextProps.location.pathname
+    const currentPathname = this.props.location.pathname
 
-  const handleClick = () => setOpen(!open)
+    if (nextPathname !== currentPathname) {
+      this.setState({
+        activeItem: nextPathname,
+      })
+    }
+  }
 
-  const handleClose = () => setOpen(false)
+  handleClick = () => this.setState({ open: !this.state.open })
 
-  return (
-    <Menu size="huge" borderless pointing>
-      <Container text>
-        <Menu.Item
-          as={Link}
-          to="/"
-          header
-          active={activeItem === withPrefix('/')}
-        >
-          <Logo />
-          Store
-        </Menu.Item>
-        <Menu.Menu position="right">
+  handleClose = () => this.setState({ open: false })
+
+  render() {
+    const { open, activeItem } = this.state
+    const { token, cartCount } = this.props
+
+    return (
+      <Menu size="huge" borderless pointing>
+        <Container text>
           <Menu.Item
             as={Link}
-            to="/cart/"
-            active={activeItem === withPrefix('/cart/')}
+            to="/"
+            header
+            active={activeItem === withPrefix('/')}
           >
-            <ShoppingCartIcon cartCount={cartCount} name="" />
+            <Logo />
+            Store
           </Menu.Item>
-          <Menu.Item position="right">
-            <BurgerButton
-              basic
-              onClick={handleClick}
-              aria-label="Open Navigation Menu"
-              autoFocus
+          <Menu.Menu position="right">
+            <Menu.Item
+              as={Link}
+              to="/cart/"
+              active={activeItem === withPrefix('/cart/')}
             >
-              <Icon fitted name="bars" />
-            </BurgerButton>
-          </Menu.Item>
-        </Menu.Menu>
-        <Portal closeOnEscape onClose={handleClose} open={open}>
-          <StyledSegment className role="dialog" aria-label="Navigation Menu">
-            <StyledContainer>
-              <CloseButton
-                aria-label="Close Navigation"
+              <ShoppingCartIcon cartCount={cartCount} name="" />
+            </Menu.Item>
+            <Menu.Item position="right">
+              <BurgerButton
                 basic
-                circular
-                onClick={handleClose}
+                onClick={this.handleClick}
+                aria-label="Open Navigation Menu"
                 autoFocus
               >
-                X
-              </CloseButton>
-              <StyledLink to="/" onClick={handleClose}>
-                Home
-              </StyledLink>
-              <StyledDivider />
-              <StyledLink to="/cart/" onClick={handleClose}>
-                {`Shopping Cart ${cartCount ? `(${cartCount})` : ''}`}
-              </StyledLink>
-              <StyledDivider />
-              {token
-                ? [
-                    <StyledLink to="/myaccount/" onClick={handleClose} key={1}>
-                      My Account
-                    </StyledLink>,
-                    <StyledDivider key={2} />,
-                    <StyledLink to="/" onClick={signout} key={3}>
-                      Sign out
-                    </StyledLink>,
-                  ]
-                : [
-                    <StyledLink to="/register/" onClick={handleClose} key={1}>
+                <Icon fitted name="bars" />
+              </BurgerButton>
+            </Menu.Item>
+          </Menu.Menu>
+          <Portal closeOnEscape onClose={this.handleClose} open={open}>
+            <StyledSegment className role="dialog" aria-label="Navigation Menu">
+              <StyledContainer>
+                <CloseButton
+                  aria-label="Close Navigation"
+                  basic
+                  circular
+                  onClick={this.handleClose}
+                  autoFocus
+                >
+                  X
+                </CloseButton>
+                <StyledLink to="/" onClick={this.handleClose}>
+                  Home
+                </StyledLink>
+                <StyledDivider />
+                <StyledLink to="/cart/" onClick={this.handleClose}>
+                  {`Shopping Cart ${cartCount ? `(${cartCount})` : ''}`}
+                </StyledLink>
+                <StyledDivider />
+                {token ? (
+                  <StyledLink to="/myaccount/" onClick={this.handleClose}>
+                    My Account
+                  </StyledLink>
+                ) : (
+                  [
+                    <StyledLink
+                      to="/register/"
+                      onClick={this.handleClose}
+                      key={1}
+                    >
                       Sign Up
                     </StyledLink>,
                     <StyledDivider key={2} />,
-                    <StyledLink to="/login/" onClick={handleClose} key={3}>
+                    <StyledLink to="/login/" onClick={this.handleClose} key={3}>
                       Sign In
                     </StyledLink>,
-                  ]}
-            </StyledContainer>
-          </StyledSegment>
-        </Portal>
-      </Container>
-    </Menu>
-  )
+                  ]
+                )}
+              </StyledContainer>
+            </StyledSegment>
+          </Portal>
+        </Container>
+      </Menu>
+    )
+  }
 }
 
 export default MobileMenu

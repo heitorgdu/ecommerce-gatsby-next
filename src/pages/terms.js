@@ -1,10 +1,9 @@
 import React from 'react'
-import SEO from '../components/SEO'
-import Layout from '../components/Layout'
+import Helmet from 'react-helmet'
 
-const Terms = ({location}) => (
-  <Layout location={location}>
-    <SEO title="Terms" />
+const Terms = () => (
+  <div>
+    <Helmet title="Terms" />
     <h1>Terms</h1>
     <p>
       Lorem ipsizzle dolizzle sit amizzle, fo shizzle my nizzle adipiscing
@@ -18,7 +17,7 @@ const Terms = ({location}) => (
       gangsta ac, eleifend vitae, shizzlin dizzle. Mammasay mammasa mamma oo sa
       suscipizzle. Shizzle my nizzle crocodizzle semper velit sed purizzle.
     </p>
-  </Layout>
+  </div>
 )
 
 export default Terms

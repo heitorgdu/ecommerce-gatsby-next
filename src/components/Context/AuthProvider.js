@@ -1,32 +1,42 @@
-import React, {useState, useEffect} from 'react'
+import React, { Component } from 'react'
 import AuthContext from './AuthContext'
 
-const AuthProvider = ({children}) => {
-  const [token, setToken] = useState(null)
+class AuthProvider extends Component {
+  constructor(props) {
+    super(props)
 
-  const updateToken = () => setToken(localStorage.getItem('customerToken'))
+    this.updateToken = () =>
+      this.setState({
+        token: localStorage.getItem('customerToken'),
+      })
 
-  const signOut = () => {
-    localStorage.removeItem('customerToken')
-    setToken('')
+    this.state = {
+      token: null,
+      updateToken: this.updateToken,
+    }
   }
 
-  useEffect(() => {
+  componentDidMount() {
     const token = localStorage.getItem('customerToken')
-    setToken(token)
-  }, [])
 
-  return (
-    <AuthContext.Provider
-      value={{
-        token,
-        updateToken,
-        signOut,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+    this.setState({
+      token,
+    })
+  }
+
+  render() {
+    const { token, updateToken } = this.state
+    return (
+      <AuthContext.Provider
+        value={{
+          token,
+          updateToken,
+        }}
+      >
+        {this.props.children}
+      </AuthContext.Provider>
+    )
+  }
 }
 
 export default AuthProvider

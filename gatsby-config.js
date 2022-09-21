@@ -12,11 +12,12 @@ module.exports = {
   pathPrefix: '/gatsby-starter-ecommerce',
   plugins: [
     {
-      resolve: '@moltin/gatsby-source-moltin',
+      resolve: 'gatsby-source-moltin',
       options: {
-        client_id:
+        key:
           process.env.MOLTIN_CLIENT_ID ||
-          'EdP3Gi1agyUF3yFS7Ngm8iyodLgbSR3wY4ceoJl0d2',
+          'j6hSilXRQfxKohTndUuVrErLcSJWP15P347L6Im0M4',
+        products: ['main_image', 'brands', 'files', 'categories'],
       },
     },
     {
@@ -62,6 +63,11 @@ module.exports = {
         display: 'minimal-ui',
         icons: [
           {
+            src: `/favicons/android-chrome-192x192.png`,
+            sizes: `192x192`,
+            type: `image/png`,
+          },
+          {
             src: `/favicons/android-chrome-512x512.png`,
             sizes: `512x512`,
             type: `image/png`,
@@ -71,5 +77,6 @@ module.exports = {
     },
     `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
+    'gatsby-plugin-react-next',
   ],
 }

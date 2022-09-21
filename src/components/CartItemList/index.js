@@ -1,9 +1,9 @@
-/* eslint-disable camelcase */
 import React from 'react'
-import {Link} from 'gatsby'
-import {Item, Button, Loader, Message, Responsive} from 'semantic-ui-react'
+import Link from 'gatsby-link'
+import { Item, Button, Loader, Message, Responsive } from 'semantic-ui-react'
+import styled from 'styled-components'
 
-export default ({items, removeFromCart, loading, completed}) => {
+export default ({ items, removeFromCart, loading, completed }) => {
   if (loading) return <Loader active inline="centered" />
 
   if (completed)
@@ -19,12 +19,12 @@ export default ({items, removeFromCart, loading, completed}) => {
       <Message warning>
         <Message.Header>Your cart is empty</Message.Header>
         <p>
-          You will need to add some items to the cart before you can checkout.
+          You'll need to add some items to the cart before you can checkout.
         </p>
       </Message>
     )
   const mapCartItemsToItems = items =>
-    items.map(({id, product_id, name, quantity, meta, image}) => {
+    items.map(({ id, product_id, name, quantity, meta, image }) => {
       const price = meta.display_price.with_tax.unit.formatted || ''
       const imageUrl = image.href || '/static/moltin-light-hex.svg'
 
@@ -33,7 +33,7 @@ export default ({items, removeFromCart, loading, completed}) => {
           src={imageUrl}
           alt={name}
           size="small"
-          style={{background: '#f2f2f2'}}
+          style={{ background: '#f2f2f2' }}
         />
       )
       const MobileItemImage = () => (
@@ -41,7 +41,7 @@ export default ({items, removeFromCart, loading, completed}) => {
           src={imageUrl}
           alt={name}
           size="small"
-          style={{background: 'none'}}
+          style={{ background: 'none' }}
         />
       )
 
@@ -53,17 +53,13 @@ export default ({items, removeFromCart, loading, completed}) => {
           </Item.Header>
         ),
         image: (
-          <>
-            <Responsive
-              as={MobileItemImage}
-              minWidth={Responsive.onlyMobile.minWidth}
-              maxWidth={Responsive.onlyMobile.maxWidth}
-            />
+          <React.Fragment>
+            <Responsive as={MobileItemImage} {...Responsive.onlyMobile} />
             <Responsive
               as={DesktopItemImage}
               minWidth={Responsive.onlyTablet.minWidth}
             />
-          </>
+          </React.Fragment>
         ),
         meta: `${quantity}x ${price}`,
         description: 'Some more information goes here....',

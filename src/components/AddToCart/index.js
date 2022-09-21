@@ -1,23 +1,64 @@
-import React, {useState, useContext} from 'react'
-import {Input, Icon, Transition} from 'semantic-ui-react'
+import React from 'react'
+import { Input, Icon, Transition } from 'semantic-ui-react'
 import CartContext from '../Context/CartContext'
 
 const Moltin = require('../../../lib/moltin')
 
-const AddToCart = ({productId}) => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [quantity, setQuantity] = useState(1)
-  const [visible, setVisible] = useState(false)
-  const {addToCart} = useContext(CartContext)
+export default class AddToCart extends React.Component {
+  state = {
+    error: '',
+    loading: false,
+    quantity: 1,
+    visible: false,
+  }
 
-  const toggleMessage = () => {
+  _handleSubmit = (e, context) => {
+    const { productId } = this.props
+    const { quantity } = this.state
+    const cartId = localStorage.getItem('mcart')
+
+    const error = this.validate(quantity)
+    this.setState({ error })
+    if (!error) {
+      this.setState({
+        loading: true,
+      })
+
+      Moltin.addToCart(cartId, productId, quantity)
+        .then(() => {
+          context.addToCart(quantity, cartId)
+
+          this.setState(
+            {
+              loading: false,
+              quantity: 1,
+              visible: true,
+            },
+            this.toggleMessage()
+          )
+        })
+        .catch(() =>
+          this.setState({
+            error: 'Something went wrong',
+            loading: false,
+          })
+        )
+    }
+  }
+
+  toggleMessage = () => {
     setTimeout(() => {
-      setVisible(false)
+      this.setState({ visible: false })
     }, 1000)
   }
 
-  const validate = quantity => {
+  _handleChange = ({ target: { value } }) => {
+    this.setState({
+      quantity: value,
+    })
+  }
+
+  validate = quantity => {
     let error
     const re = /^[0-9\b]+$/
 
@@ -27,58 +68,41 @@ const AddToCart = ({productId}) => {
     return error
   }
 
-  const handleSubmit = async () => {
-    const cartId = await localStorage.getItem('mcart')
-
-    const error = validate(quantity)
-    setError(error)
-    if (!error) {
-      setLoading(true)
-      Moltin.addToCart(cartId, productId, quantity)
-        .then(() => {
-          addToCart(quantity, cartId)
-          setLoading(false)
-          setQuantity(quantity)
-          setVisible(true)
-          toggleMessage()
-        })
-        .catch(err => {
-          setError(`Error: ${err.errors[0].detail}` || 'Something went wrong')
-          setLoading(false)
-        })
-    }
+  render() {
+    const { loading, quantity, visible, error } = this.state
+    return (
+      <CartContext.Consumer>
+        {context => (
+          <React.Fragment>
+            <Input
+              type="number"
+              placeholder="Quantity"
+              value={quantity}
+              min={1}
+              step={1}
+              error={!!error}
+              onChange={e => this._handleChange(e)}
+              action={{
+                color: 'orange',
+                content: 'Add to Cart',
+                icon: 'plus cart',
+                onClick: e => this._handleSubmit(e, context),
+                loading,
+                disabled: loading,
+              }}
+            />
+            {error && (
+              <div style={{ color: 'red', position: 'absolute' }}>{error}</div>
+            )}
+            <Transition duration={{ hide: 500, show: 500 }} visible={visible}>
+              <div style={{ color: 'green', position: 'absolute' }}>
+                <Icon name="check" />
+                Added to cart
+              </div>
+            </Transition>
+          </React.Fragment>
+        )}
+      </CartContext.Consumer>
+    )
   }
-
-  const handleChange = ({target: {value}}) => setQuantity(value)
-
-  return (
-    <>
-      <Input
-        type="number"
-        placeholder="Quantity"
-        value={quantity}
-        min={1}
-        step={1}
-        error={!!error}
-        onChange={handleChange}
-        action={{
-          color: 'orange',
-          content: 'Add to Cart',
-          icon: 'plus cart',
-          onClick: handleSubmit,
-          loading,
-          disabled: loading,
-        }}
-      />
-      {error && <div style={{color: 'red', position: 'absolute'}}>{error}</div>}
-      <Transition duration={{hide: 500, show: 500}} visible={visible}>
-        <div style={{color: 'green', position: 'absolute'}}>
-          <Icon name="check" />
-          Added to cart
-        </div>
-      </Transition>
-    </>
-  )
 }
-
-export default AddToCart
